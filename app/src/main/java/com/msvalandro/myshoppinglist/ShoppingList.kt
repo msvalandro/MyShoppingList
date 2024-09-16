@@ -2,6 +2,7 @@ package com.msvalandro.myshoppinglist
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,7 +25,7 @@ data class ShoppingItem(
     val id: Int,
     var name: String,
     var quantity: Int,
-    var isEditing: Boolean
+    var isEditing: Boolean = false
 )
 
 @Composable
@@ -56,7 +57,35 @@ fun ShoppingList() {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            confirmButton = {},
+            confirmButton = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(onClick = { showDialog = false }) {
+                        Text("Cancel")
+                    }
+
+                    Button(onClick = {
+                        if (itemName.isNotBlank()) {
+                            val newItem = ShoppingItem(
+                                id = shoppingItems.size + 1,
+                                name = itemName,
+                                quantity = itemQuantity.toInt()
+                            )
+
+                            shoppingItems = shoppingItems + newItem
+                            showDialog = false
+                            itemName = ""
+                            itemQuantity = ""
+                        }
+                    }) {
+                        Text("Add")
+                    }
+                }
+            },
             title = { Text("Add Shopping Item") },
             text = {
                 Column {
@@ -64,13 +93,17 @@ fun ShoppingList() {
                         value = itemName,
                         onValueChange = { itemName = it },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth().padding(8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
                     )
                     OutlinedTextField(
                         value = itemQuantity,
                         onValueChange = { itemQuantity = it },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth().padding(8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
                     )
                 }
             }
