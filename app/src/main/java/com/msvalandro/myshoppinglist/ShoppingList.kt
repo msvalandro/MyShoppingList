@@ -60,8 +60,27 @@ fun ShoppingList() {
         LazyColumn(modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)) {
-            items(shoppingItems) {
-                ShoppingListItem(it, {}, {})
+            items(shoppingItems) { item ->
+                if (item.isEditing) {
+                    ShoppingItemEditor(item = item, onEditComplete = { editedName, editedQuantity ->
+                        shoppingItems = shoppingItems.map { it.copy(isEditing = false) }
+
+                        val editedItem = shoppingItems.find { it.id == item.id }
+
+                        editedItem?.let {
+                            it.name = editedName
+                            it.quantity = editedQuantity
+                        }
+                    })
+                } else {
+                    ShoppingListItem(
+                        item = item,
+                        onEditClick = {
+                            shoppingItems = shoppingItems.map { it.copy(isEditing = it.id == item.id) }
+                        },
+                        onDeleteClick = { shoppingItems = shoppingItems - item }
+                    )
+                }
             }
         }
     }
@@ -179,7 +198,8 @@ fun ShoppingListItem(
             .border(
                 border = BorderStroke(2.dp, Color(0XFF018786)),
                 shape = RoundedCornerShape(20)
-            )
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = item.name, modifier = Modifier.padding(8.dp))
         Text(text = "Qtd: ${item.quantity}", modifier = Modifier.padding(8.dp))
